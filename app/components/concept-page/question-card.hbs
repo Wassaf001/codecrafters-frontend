@@ -7,7 +7,6 @@
     {{! template-lint-disable no-invalid-interactive }}
     <div class="question-card-option-container flex flex-col -mx-3 sm:-mx-4 gap-px" {{did-insert this.handleDidInsertOptionsList}}>
       {{#each this.options as |option optionIndex|}}
-        {{! @glint-expect-error: not ts-ified yet }}
         <ConceptPage::QuestionCardOption
           class="px-4"
           @option={{option}}
@@ -17,22 +16,24 @@
         />
       {{/each}}
 
-      {{! @glint-expect-error incorrect type - event object is passed to handler}}
-      {{on-key "k" this.handleMoveUp}}
-      {{! @glint-expect-error incorrect type - event object is passed to handler}}
-      {{on-key "j" this.handleMoveDown}}
-      {{! @glint-expect-error incorrect type - event object is passed to handler}}
-      {{on-key "ArrowUp" this.handleMoveUp}}
-      {{! @glint-expect-error incorrect type - event object is passed to handler}}
-      {{on-key "ArrowDown" this.handleMoveDown}}
+      {{#if @isCurrentBlock}}
+        {{! @glint-expect-error incorrect type - event object is passed to handler}}
+        {{on-key "k" this.handleMoveUp}}
+        {{! @glint-expect-error incorrect type - event object is passed to handler}}
+        {{on-key "j" this.handleMoveDown}}
+        {{! @glint-expect-error incorrect type - event object is passed to handler}}
+        {{on-key "ArrowUp" this.handleMoveUp}}
+        {{! @glint-expect-error incorrect type - event object is passed to handler}}
+        {{on-key "ArrowDown" this.handleMoveDown}}
 
-      {{#each this.digitKeys as |digitKey digitKeyIndex|}}
-        {{on-key digitKey (fn this.handleOptionSelected digitKeyIndex)}}
-      {{/each}}
+        {{#each this.digitKeys as |digitKey digitKeyIndex|}}
+          {{on-key digitKey (fn this.handleOptionSelected digitKeyIndex)}}
+        {{/each}}
 
-      {{#each this.letterKeys as |letterKey letterKeyIndex|}}
-        {{on-key letterKey (fn this.handleOptionSelected letterKeyIndex)}}
-      {{/each}}
+        {{#each this.letterKeys as |letterKey letterKeyIndex|}}
+          {{on-key letterKey (fn this.handleOptionSelected letterKeyIndex)}}
+        {{/each}}
+      {{/if}}
     </div>
   </div>
 
@@ -46,7 +47,7 @@
       >
         <div class="mb-4 font-semibold {{if this.selectedOptionIsCorrect 'text-green-700' 'text-gray-800'}}">
           {{#if this.selectedOptionIsCorrect}}
-            <span class="mr-1">🎉</span>
+            <span class="mr-1" {{did-insert this.handleDidInsertCorrectAnswerEmoji}}>🎉</span>
             Correct!
           {{else}}
             <span class="mr-1">👀</span>

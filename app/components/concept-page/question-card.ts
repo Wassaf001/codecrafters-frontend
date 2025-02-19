@@ -4,17 +4,23 @@ import { action } from '@ember/object';
 import type ConceptQuestionModel from 'codecrafters-frontend/models/concept-question';
 import type { Option } from 'codecrafters-frontend/models/concept-question';
 import { next } from '@ember/runloop';
+import { service } from '@ember/service';
+import ConfettiService from 'codecrafters-frontend/services/confetti';
 
 interface Signature {
   Element: HTMLDivElement;
 
   Args: {
+    isCurrentBlock: boolean;
     question: ConceptQuestionModel;
     onSubmit: () => void;
   };
 }
 
 export default class QuestionCardComponent extends Component<Signature> {
+  @service declare confetti: ConfettiService;
+
+  @tracked hasFiredConfetti = false;
   @tracked selectedOptionIndex: number | null = null;
 
   get digitKeys() {
@@ -48,6 +54,23 @@ export default class QuestionCardComponent extends Component<Signature> {
 
   get selectedOptionIsCorrect() {
     return this.selectedOption && this.selectedOption.is_correct;
+  }
+
+  @action
+  async handleDidInsertCorrectAnswerEmoji(element: HTMLElement) {
+    if (this.hasFiredConfetti || !this.selectedOptionIsCorrect) {
+      return;
+    }
+
+    this.hasFiredConfetti = true;
+
+    await this.confetti.fireFromElement(element, {
+      particleCount: 50,
+      spread: 60,
+      startVelocity: 20,
+      colors: ['#22c55e', '#16a34a', '#15803d'], // green colors
+      disableForReducedMotion: true,
+    });
   }
 
   @action
@@ -134,5 +157,11 @@ export default class QuestionCardComponent extends Component<Signature> {
   @action
   handleShowExplanationClick() {
     this.handleOptionSelected(this.args.question.correctOptionIndex);
+  }
+}
+
+declare module '@glint/environment-ember-loose/registry' {
+  export default interface Registry {
+    'ConceptPage::QuestionCard': typeof QuestionCardComponent;
   }
 }
