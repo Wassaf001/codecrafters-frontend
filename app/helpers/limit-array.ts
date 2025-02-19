@@ -1,5 +1,7 @@
 import { helper } from '@ember/component/helper';
 
-export default helper(function limitArray([array, limit]: [any[], number]) {
-  return array.reverse().slice(0, limit);
+export default helper(function limitArray<T>([array, limit]: [T[], number]) {
+  if (limit < 0) return [];
+
+  return [...array].reverse().slice(0, limit);
 });
